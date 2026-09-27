@@ -1,0 +1,78 @@
+# Store metadata
+
+Starter file generated from this template's manifest. Every store asks
+for this material at submission time; keep it current as the code
+changes instead of rewriting it at the end. Replace the placeholder
+lines marked TODO before you submit.
+
+Packaging your extension is local and free. Submitting the result to a
+store is what [extension.dev](https://docs.extension.dev/publish/overview?utm_source=store-md)
+does, and it sponsors Extension.js.
+
+Last updated: 2026-09-27
+
+## Listing
+
+- Name: prompt-pad
+- Summary: Shows a Svelte overlay on web pages, with an options page
+  that moves it from right to left.
+- Description: TODO write two or three short paragraphs of user
+  benefits. Describe what the user sees and gains, not how the code
+  works.
+- Category: TODO pick one per store (for example Productivity).
+- Screenshots: TODO at least one 1280x800 screenshot per store.
+
+## Privacy and data use
+
+- This template stores one setting, which edge the overlay sits on,
+  in the browser's own sync storage. It collects and transmits no user
+  data.
+- The manifest declares data_collection_permissions: none for
+  Firefox, which matches this behavior. If you add data collection,
+  update the declaration, this section, and your privacy policy in
+  the same change.
+- Privacy policy URL: TODO required by every store once you collect
+  any data.
+
+## Chrome Web Store
+
+### Single purpose
+
+Shows a Svelte overlay on web pages, with an options page that moves
+it from right to left.
+
+### Permissions justification
+
+- Content script match <all_urls>: The content script runs on the pages the user visits to render the extension's on-page interface. Narrow this to the specific sites your extension needs before submitting.
+- storage: keeps the one setting the options page writes, so the
+  choice survives closing the page and restarting the browser. The
+  content script reads the same key to decide which edge the overlay
+  sits on. Nothing leaves the browser.
+
+## Firefox Add-ons
+
+### Reviewer notes
+
+TODO steps a reviewer needs to exercise the extension, plus test
+credentials if sign-in is required. Start by opening any page, then
+click Open options on the overlay and tick the setting to watch the
+overlay move to the left edge. The build is bundled, so AMO requires a
+source zip. Include build-from-source instructions: npm install, then
+npm run build. The dist output matches the upload.
+
+### Release notes
+
+TODO user-facing notes for the version you are submitting.
+
+## Edge Add-ons
+
+### Certification notes
+
+TODO anything the certification team needs to test the extension,
+including test steps and credentials. Mirrors the Firefox reviewer
+notes in most cases.
+
+## Version history
+
+- 1.0.0 (unreleased): initial version from the content-svelte template.
+  Not yet submitted to any store.
