@@ -1,5 +1,54 @@
 @import "tailwindcss";
 
+/* Tailwind backs its `--tw-*` variables with `@property` registrations.
+   `@property` is document-scoped, and this stylesheet only ever loads into a
+   shadow root (see `fetchCSS` in scripts.ts), where browsers ignore the
+   registrations. The variables then read back as undefined, and every utility
+   that consumes one through var() silently collapses. The visible one is
+   `.border`: it sets `border-style: var(--tw-border-style)`, an undefined
+   variable makes that declaration invalid at computed-value time, `border-style`
+   reverts to `none`, and a `none` border reports `border-width: 0px` -- so form
+   field borders vanish while `.border-gray-300` still paints the colour.
+
+   Tailwind ships an `@supports` block that seeds the same values for engines
+   without `@property`, but Chrome matches that guard and skips it, expecting
+   its registration to work. Re-declare the values unconditionally instead, in
+   the `properties` layer so genuine utilities (which sit in `utilities`) still
+   override them. Seed the descendants rather than `:host`: the host carries an
+   inline `all: initial !important`, which would reset custom properties on it.
+*/
+@layer properties {
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    --tw-border-style: solid;
+    --tw-leading: initial;
+    --tw-font-weight: initial;
+    --tw-tracking: initial;
+    --tw-ordinal: initial;
+    --tw-slashed-zero: initial;
+    --tw-numeric-figure: initial;
+    --tw-numeric-spacing: initial;
+    --tw-numeric-fraction: initial;
+    --tw-shadow: 0 0 #0000;
+    --tw-shadow-color: initial;
+    --tw-shadow-alpha: 100%;
+    --tw-inset-shadow: 0 0 #0000;
+    --tw-inset-shadow-color: initial;
+    --tw-inset-shadow-alpha: 100%;
+    --tw-ring-color: initial;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-inset-ring-color: initial;
+    --tw-inset-ring-shadow: 0 0 #0000;
+    --tw-ring-inset: initial;
+    --tw-ring-offset-width: 0px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-outline-style: solid;
+  }
+}
+
 .content_script {
   font-family:
     system-ui,
