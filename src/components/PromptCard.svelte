@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Prompt } from "../lib/types.js";
   import { formatRelativeTime } from "../lib/format.js";
+  import { copyText } from "../lib/clipboard.js";
 
   interface Props {
     prompt: Prompt;
@@ -11,10 +12,42 @@
   let { prompt, onedit, ondelete }: Props = $props();
 
   // A content script's window.confirm() surfaces in the host page's context and
-  // gets blocked by plenty of sites, so the confirmation stays inline.
-  let isConfirmingDelete = $state(false);
+  // gets blocked by plenty of sites, so the confirmation stays inline. Delete
+  // confirmation and copy failure share one slot so the two never stack into two
+  // competing red banners on the same card.
+  type CardNotice = { kind: "confirm-delete" } | { kind: "copy-failed" };
+
+  let notice = $state<CardNotice | null>(null);
+  let hasCopied = $state(false);
+  let copyTimer: ReturnType<typeof setTimeout> | undefined;
 
   const wasEdited = $derived(prompt.updatedAt !== prompt.createdAt);
+
+  async function handleCopy(event: MouseEvent) {
+    // copyText must run before any await: Safari rejects the write once the
+    // click's transient user activation is gone, and so does the fallback.
+    const copied = await copyText(
+      prompt.content,
+      event.currentTarget as HTMLElement,
+    );
+
+    if (!copied) {
+      hasCopied = false;
+      notice = { kind: "copy-failed" };
+      return;
+    }
+
+    notice = null;
+    hasCopied = true;
+    clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => (hasCopied = false), 1500);
+  }
+
+  // An unmount mid-feedback (HMR, deleting the prompt) would otherwise leave a
+  // timer pointing at state nobody renders any more.
+  $effect(() => {
+    return () => clearTimeout(copyTimer);
+  });
 </script>
 
 <li
@@ -25,6 +58,52 @@
       {prompt.title}
     </h3>
     <div class="flex shrink-0 items-center gap-1">
+      {#if prompt.content}
+        <button
+          type="button"
+          onclick={handleCopy}
+          title="Copy prompt"
+          aria-label={`Copy ${prompt.title}`}
+          class="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+        >
+          {#if hasCopied}
+            <svg
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m4.5 12.75 6 6 9-13.5"
+              />
+            </svg>
+          {:else}
+            <svg
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+              />
+            </svg>
+          {/if}
+        </button>
+        <!-- The icon swap alone is invisible to a screen reader, and swapping
+             aria-label on a focused button is not announced reliably either. -->
+        <span class="sr-only" role="status" aria-live="polite">
+          {hasCopied ? `${prompt.title} copied to clipboard` : ""}
+        </span>
+      {/if}
       <button
         type="button"
         onclick={onedit}
@@ -49,7 +128,7 @@
       </button>
       <button
         type="button"
-        onclick={() => (isConfirmingDelete = true)}
+        onclick={() => (notice = { kind: "confirm-delete" })}
         title="Delete prompt"
         aria-label={`Delete ${prompt.title}`}
         class="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
@@ -102,7 +181,7 @@
     {/if}
   </p>
 
-  {#if isConfirmingDelete}
+  {#if notice?.kind === "confirm-delete"}
     <div
       class="mt-2 flex items-center justify-between gap-2 rounded-lg bg-red-50 px-2.5 py-2"
     >
@@ -117,12 +196,20 @@
         </button>
         <button
           type="button"
-          onclick={() => (isConfirmingDelete = false)}
+          onclick={() => (notice = null)}
           class="rounded-md px-2 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
         >
           Cancel
         </button>
       </span>
     </div>
+  {:else if notice?.kind === "copy-failed"}
+    <p
+      role="alert"
+      class="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700"
+    >
+      Could not copy. Your browser may be blocking clipboard access on this
+      page.
+    </p>
   {/if}
 </li>
