@@ -1,74 +1,42 @@
 <script lang="ts">
-import svelteLogo from '../images/svelte.png'
-import tailwindBg from '../images/tailwind_bg.png'
-import typescriptLogo from '../images/typescript.png'
-import tailwindLogo from '../images/tailwind.png'
-import chromeWindowBg from '../images/chromeWindow.png'
+  import { promptStore } from "../lib/storage.svelte.js";
+  import PromptList from "../components/PromptList.svelte";
 
-let isDialogOpen = true
-
-function toggleDialog() {
-  isDialogOpen = !isDialogOpen
-}
-
-// The page context cannot call openOptionsPage, so the background script
-// receives this message and opens the options page for us.
-function openOptions() {
-  chrome.runtime.sendMessage({type: 'open-options'})
-}
+  let isPanelOpen = $state(false);
 </script>
 
-{#if !isDialogOpen}
-  <div class="mx-auto p-6">
-    <button
-      on:click={toggleDialog}
-      class="bg-white rounded-md p-3 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-    >
-      Open content script hint <span aria-hidden="true">+</span>
-    </button>
-  </div>
+{#if isPanelOpen}
+  <PromptList onclose={() => (isPanelOpen = false)} />
 {:else}
-  <div class="mx-auto max-w-7xl md:px-0 lg:p-6">
-    <div class="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl lg:rounded-3xl md:pt-24 md:h-full sm:h-[100vh] lg:flex lg:flex-wrap lg:gap-x-20 lg:px-24 lg:pt-0">
-      <div class="absolute z-20 top-0 inset-x-0 flex justify-center overflow-hidden pointer-events-none">
-        <div class="w-[108rem] flex-none flex justify-end">
-          <picture>
-            <img src={tailwindBg} alt="" class="w-[90rem] flex-none max-w-none hidden dark:block" decoding="async" />
-          </picture>
-        </div>
-      </div>
-      <div class="mx-auto max-w-md text-center lg:py-12 lg:mx-0 lg:flex-auto lg:text-left">
-        <div class="flex items-center justify-center space-x-4 my-4 mx-auto">
-          <img alt="Svelte logo" src={svelteLogo} class="relative inline-block w-12" />
-          <div class="text-3xl text-white">+</div>
-          <img alt="TypeScript logo" src={typescriptLogo} class="relative inline-block w-12" />
-          <div class="text-3xl text-white">+</div>
-          <img alt="Tailwind logo" src={tailwindLogo} class="relative inline-block w-12" />
-        </div>
-        <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          This is a content script running Svelte, TypeScript, and Tailwind.css
-        </h2>
-        <p class="mt-6 text-lg leading-8 text-gray-300">
-          Learn more about creating cross-browser extensions by
-          <button on:click={toggleDialog} class="underline hover:no-underline">closing this hint</button>.
-        </p>
-      </div>
-      <div class="relative mt-16 h-80 lg:mt-8">
-        <img class="absolute left-0 top-0 w-[57rem] max-w-none rounded-md bg-white/5 ring-1 ring-white/10" src={chromeWindowBg} alt="Chrome window screenshot" width="1824" height="1080" />
-      </div>
-      <!-- Last child of the card, full width so it wraps below both columns
-           rather than becoming a third one. Every other content template ends
-           on this button, and the framework ones used to bury it beside the
-           screenshot. -->
-      <div class="w-full pb-12 text-center lg:pb-16">
-        <button
-          on:click={openOptions}
-          aria-label="Open options"
-          class="rounded-md bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/20 hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          Open options
-        </button>
-      </div>
-    </div>
-  </div>
+  <button
+    type="button"
+    onclick={() => (isPanelOpen = true)}
+    aria-expanded="false"
+    aria-controls="prompt-panel"
+    class="flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+  >
+    <svg
+      class="h-4 w-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M8.25 6.75h7.5M8.25 12h7.5m-7.5 5.25h4.5M5.25 3.75h13.5a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V5.25a1.5 1.5 0 0 1 1.5-1.5Z"
+      />
+    </svg>
+    Prompts
+    {#if promptStore.count > 0}
+      <span
+        class="rounded-full bg-white/20 px-1.5 text-xs tabular-nums"
+        aria-label="{promptStore.count} saved"
+      >
+        {promptStore.count}
+      </span>
+    {/if}
+  </button>
 {/if}
