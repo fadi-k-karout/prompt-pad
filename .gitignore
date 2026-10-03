@@ -33,6 +33,9 @@ extension-env.d.ts
 # extension.js local session state
 .extension-js
 
+# svelte-check cache
+.svelte-check
+
 
 
 
