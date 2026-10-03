@@ -50,6 +50,27 @@ export default function initial() {
     target: contentDiv
   })
 
+  // A shadow root does not stop events from reaching the host page: they are
+  // retargeted to the host element and keep bubbling, so the page's own
+  // document- and window-level listeners still see every click on the widget
+  // and will close menus or dismiss modals underneath it.
+  //
+  // This has to happen on contentDiv, which is the last node inside the shadow
+  // tree, rather than on individual components. Svelte 5 delegates `click` to
+  // a single listener on the mount root, so a stopPropagation() anywhere below
+  // that root cancels the event before Svelte's handler ever runs and the
+  // widget silently stops responding. On the root itself it is safe: a
+  // stopPropagation() does not suppress other listeners on the same element, so
+  // Svelte still receives the click while the host page never does.
+  // mousedown is covered too, since host-page dropdowns and date pickers
+  // usually act on mousedown rather than click.
+  contentDiv.addEventListener('click', swallow)
+  contentDiv.addEventListener('mousedown', swallow)
+
+  function swallow(event: Event) {
+    event.stopPropagation()
+  }
+
   // The key is absent until the first write, so ask storage for the default too.
   chrome.storage.sync.get({[SETTING_KEY]: DEFAULT_VALUE}, (settings) => {
     applyPosition(settings[SETTING_KEY])
@@ -77,6 +98,8 @@ export default function initial() {
 
   return () => {
     chrome.storage.onChanged.removeListener(onStorageChanged)
+    contentDiv.removeEventListener('click', swallow)
+    contentDiv.removeEventListener('mousedown', swallow)
     unmount(app)
     rootDiv.remove()
   }
