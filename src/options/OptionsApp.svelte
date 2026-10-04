@@ -1,29 +1,29 @@
 <script lang="ts">
-import iconUrl from '../images/icon.png'
+  import iconUrl from "../images/icon.png";
 
-type BadgePosition = 'left' | 'right'
+  type BadgePosition = "left" | "right";
 
-const SETTING_KEY = 'badgePosition'
-const DEFAULT_VALUE: BadgePosition = 'right'
+  const SETTING_KEY = "badgePosition";
+  const DEFAULT_VALUE: BadgePosition = "right";
 
-let badgePosition: BadgePosition = DEFAULT_VALUE
-let status = 'Loading your setting...'
+  let badgePosition: BadgePosition = DEFAULT_VALUE;
+  let status = "Loading your setting...";
 
-// The key is absent until the first write, so ask storage for the default too.
-chrome.storage.sync.get({[SETTING_KEY]: DEFAULT_VALUE}, (settings) => {
-  badgePosition = settings[SETTING_KEY] === 'left' ? 'left' : 'right'
-  status = 'Setting loaded from chrome.storage.sync'
-})
+  // The key is absent until the first write, so ask storage for the default too.
+  chrome.storage.sync.get({ [SETTING_KEY]: DEFAULT_VALUE }, (settings) => {
+    badgePosition = settings[SETTING_KEY] === "left" ? "left" : "right";
+    status = "Setting loaded from chrome.storage.sync";
+  });
 
-// The content script listens for this write, so the overlay reacts while the
-// options page is still open.
-function saveSetting(event: Event) {
-  const checkbox = event.currentTarget as HTMLInputElement
-  badgePosition = checkbox.checked ? 'left' : 'right'
-  chrome.storage.sync.set({[SETTING_KEY]: badgePosition}, () => {
-    status = `Saved: the overlay sits on the ${badgePosition}`
-  })
-}
+  // The content script listens for this write, so the overlay reacts while the
+  // options page is still open.
+  function saveSetting(event: Event) {
+    const checkbox = event.currentTarget as HTMLInputElement;
+    badgePosition = checkbox.checked ? "left" : "right";
+    chrome.storage.sync.set({ [SETTING_KEY]: badgePosition }, () => {
+      status = `Saved: the overlay sits on the ${badgePosition}`;
+    });
+  }
 </script>
 
 <main class="mx-auto max-w-2xl px-8 py-10 text-gray-300">
@@ -56,7 +56,7 @@ function saveSetting(event: Event) {
       id="badge-left"
       type="checkbox"
       class="h-5 w-5 accent-blue-500"
-      checked={badgePosition === 'left'}
+      checked={badgePosition === "left"}
       on:change={saveSetting}
     />
     Show the badge on the left

@@ -1,24 +1,24 @@
 /** @type {import('extension').FileConfig} */
-const profile = (name) => `./dist/extension-profile-${name}`
-const startingUrl = 'https://example.com'
-const ciFlags = process.env.CI ? ['--no-sandbox', '--disable-gpu'] : []
+const profile = (name) => `./dist/extension-profile-${name}`;
+const startingUrl = "https://example.com";
+const ciFlags = process.env.CI ? ["--no-sandbox", "--disable-gpu"] : [];
 
 export default {
   browser: {
-    chrome: {profile: profile('chrome'), startingUrl, browserFlags: ciFlags},
+    chrome: { profile: profile("chrome"), startingUrl, browserFlags: ciFlags },
     chromium: {
-      profile: profile('chromium'),
+      profile: profile("chromium"),
       startingUrl,
-      browserFlags: ciFlags
+      browserFlags: ciFlags,
     },
-    edge: {profile: profile('edge'), startingUrl, browserFlags: ciFlags},
-    firefox: {profile: profile('firefox'), startingUrl},
-    'chromium-based': {
-      profile: profile('chromium-based'),
+    edge: { profile: profile("edge"), startingUrl, browserFlags: ciFlags },
+    firefox: { profile: profile("firefox"), startingUrl },
+    "chromium-based": {
+      profile: profile("chromium-based"),
       startingUrl,
-      browserFlags: ciFlags
+      browserFlags: ciFlags,
     },
-    'gecko-based': {profile: profile('gecko-based'), startingUrl}
+    "gecko-based": { profile: profile("gecko-based"), startingUrl },
   },
   config: (config = {}) => {
     config.module = config.module || {};
@@ -31,19 +31,19 @@ export default {
       exclude: /node_modules/,
       use: [
         {
-          loader: 'builtin:swc-loader',
+          loader: "builtin:swc-loader",
           options: {
             jsc: {
               parser: {
-                syntax: 'typescript'
+                syntax: "typescript",
               },
-              target: 'es2022'
-            }
-          }
-        }
-      ]
+              target: "es2022",
+            },
+          },
+        },
+      ],
     });
 
     return config;
-  }
-}
+  },
+};
