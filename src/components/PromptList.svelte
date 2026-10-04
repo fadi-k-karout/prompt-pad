@@ -17,11 +17,22 @@
 
   const isEditing = $derived(editingId !== null);
 
+  // The prompt being edited can disappear while its composer is open -- deleted
+  // here, or synced in from the options page or a second tab. The composer then
+  // leaves with it, and clearing the id here is what re-enables Add, instead of
+  // stranding the panel until the next Escape.
+  $effect(() => {
+    if (editingId && !promptStore.getById(editingId)) editingId = null;
+  });
+
   function toDraft(prompt: Prompt): PromptDraft {
     return { title: prompt.title, content: prompt.content, tags: prompt.tags };
   }
 
   function startCreate() {
+    // Saving before the first read lands would write a one-prompt list over
+    // whatever is already stored, so creation waits for a loaded list.
+    if (!promptStore.isLoaded) return;
     editingId = null;
     showComposer = true;
   }
@@ -57,6 +68,11 @@
     }
   }
 
+  async function handleRetry() {
+    listError = null;
+    await promptStore.reload();
+  }
+
   // Escape backs out one layer at a time, so a stray keypress does not discard
   // a half-written prompt along with the panel.
   function handleEscape() {
@@ -90,7 +106,7 @@
       <button
         type="button"
         onclick={startCreate}
-        disabled={showComposer || isEditing}
+        disabled={showComposer || isEditing || !promptStore.isLoaded}
         class="flex items-center gap-1 rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
       >
         <svg
@@ -127,13 +143,31 @@
 
   <div class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3">
     {#if !promptStore.isLoaded}
-      <ul class="flex flex-col gap-2">
-        {#each Array(3) as _, index (index)}
-          <li
-            class="h-16 animate-pulse rounded-xl border border-gray-200 bg-gray-50"
-          ></li>
-        {/each}
-      </ul>
+      {#if promptStore.loadError}
+        <div
+          class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-red-200 bg-red-50 px-4 py-8 text-center"
+        >
+          <p role="alert" class="text-sm font-semibold text-red-700">
+            Could not load your prompts
+          </p>
+          <p class="text-xs text-red-600">{promptStore.loadError}</p>
+          <button
+            type="button"
+            onclick={handleRetry}
+            class="mt-1 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+          >
+            Try again
+          </button>
+        </div>
+      {:else}
+        <ul class="flex flex-col gap-2">
+          {#each Array(3) as _, index (index)}
+            <li
+              class="h-16 animate-pulse rounded-xl border border-gray-200 bg-gray-50"
+            ></li>
+          {/each}
+        </ul>
+      {/if}
     {:else}
       {#if listError}
         <p
