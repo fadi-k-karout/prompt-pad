@@ -1,23 +1,23 @@
-import {mount, unmount} from 'svelte'
-import ContentApp from './ContentApp.svelte'
-import './styles.css'
+import { mount, unmount } from "svelte";
+import ContentApp from "./ContentApp.svelte";
+import "./styles.css";
 
-console.log('[From the page context] Hello from content_scripts!')
+console.log("[From the page context] Hello from content_scripts!");
 
-type BadgePosition = 'left' | 'right'
+type BadgePosition = "left" | "right";
 
-const SETTING_KEY = 'badgePosition'
-const DEFAULT_VALUE: BadgePosition = 'right'
+const SETTING_KEY = "badgePosition";
+const DEFAULT_VALUE: BadgePosition = "right";
 
 // Both strings are spelled out so Tailwind sees `left-0` and `right-0` in the
 // source and compiles them into the stylesheet the shadow root loads.
 const POSITION_CLASS: Record<BadgePosition, string> = {
-  left: 'content_script left-0',
-  right: 'content_script right-0'
-}
+  left: "content_script left-0",
+  right: "content_script right-0",
+};
 
 function toPosition(value: unknown): BadgePosition {
-  return value === 'left' ? 'left' : 'right'
+  return value === "left" ? "left" : "right";
 }
 
 /**
@@ -26,29 +26,29 @@ function toPosition(value: unknown): BadgePosition {
  * Do not invoke it yourself.
  */
 export default function initial() {
-  const rootDiv = document.createElement('div')
-  rootDiv.setAttribute('data-extension-root', 'true')
+  const rootDiv = document.createElement("div");
+  rootDiv.setAttribute("data-extension-root", "true");
   // Isolate the host from page styles (e.g. example.com ships div{opacity:.8},
   // which would otherwise fade the whole widget): the shadow DOM only protects
   // descendants, and the host element itself still takes page CSS.
-  rootDiv.style.cssText = 'all: initial !important'
-  document.body.appendChild(rootDiv)
-  const shadowRoot = rootDiv.attachShadow({mode: 'open'})
+  rootDiv.style.cssText = "all: initial !important";
+  document.body.appendChild(rootDiv);
+  const shadowRoot = rootDiv.attachShadow({ mode: "open" });
 
-  const styleElement = document.createElement('style')
-  shadowRoot.appendChild(styleElement)
+  const styleElement = document.createElement("style");
+  shadowRoot.appendChild(styleElement);
 
-  fetchCSS().then((response) => (styleElement.textContent = response))
+  fetchCSS().then((response) => (styleElement.textContent = response));
 
   // Create container for Svelte app
-  const contentDiv = document.createElement('div')
-  contentDiv.className = POSITION_CLASS[DEFAULT_VALUE]
-  shadowRoot.appendChild(contentDiv)
+  const contentDiv = document.createElement("div");
+  contentDiv.className = POSITION_CLASS[DEFAULT_VALUE];
+  shadowRoot.appendChild(contentDiv);
 
   // Mount Svelte app using Svelte 5's mount function
   const app = mount(ContentApp, {
-    target: contentDiv
-  })
+    target: contentDiv,
+  });
 
   // A shadow root does not stop events from reaching the host page: they are
   // retargeted to the host element and keep bubbling, so the page's own
@@ -64,51 +64,51 @@ export default function initial() {
   // Svelte still receives the click while the host page never does.
   // mousedown is covered too, since host-page dropdowns and date pickers
   // usually act on mousedown rather than click.
-  contentDiv.addEventListener('click', swallow)
-  contentDiv.addEventListener('mousedown', swallow)
+  contentDiv.addEventListener("click", swallow);
+  contentDiv.addEventListener("mousedown", swallow);
 
   function swallow(event: Event) {
-    event.stopPropagation()
+    event.stopPropagation();
   }
 
   // The key is absent until the first write, so ask storage for the default too.
-  chrome.storage.sync.get({[SETTING_KEY]: DEFAULT_VALUE}, (settings) => {
-    applyPosition(settings[SETTING_KEY])
-  })
+  chrome.storage.sync.get({ [SETTING_KEY]: DEFAULT_VALUE }, (settings) => {
+    applyPosition(settings[SETTING_KEY]);
+  });
 
   // The options page writes the same key, so the overlay follows it live rather
   // than waiting for the next page load.
   const onStorageChanged = (
-    changes: Record<string, {newValue?: unknown}>,
-    areaName: string
+    changes: Record<string, { newValue?: unknown }>,
+    areaName: string,
   ) => {
-    if (areaName === 'sync' && changes[SETTING_KEY]) {
-      applyPosition(changes[SETTING_KEY].newValue)
+    if (areaName === "sync" && changes[SETTING_KEY]) {
+      applyPosition(changes[SETTING_KEY].newValue);
     }
-  }
+  };
 
-  chrome.storage.onChanged.addListener(onStorageChanged)
+  chrome.storage.onChanged.addListener(onStorageChanged);
 
   // The class lands on the element the stylesheet positions, not on the host:
   // the host is hardened with `all: initial !important`, which a plain style
   // write cannot beat, and it is not the positioned box either way.
   function applyPosition(value: unknown) {
-    contentDiv.className = POSITION_CLASS[toPosition(value)]
+    contentDiv.className = POSITION_CLASS[toPosition(value)];
   }
 
   return () => {
-    chrome.storage.onChanged.removeListener(onStorageChanged)
-    contentDiv.removeEventListener('click', swallow)
-    contentDiv.removeEventListener('mousedown', swallow)
-    unmount(app)
-    rootDiv.remove()
-  }
+    chrome.storage.onChanged.removeListener(onStorageChanged);
+    contentDiv.removeEventListener("click", swallow);
+    contentDiv.removeEventListener("mousedown", swallow);
+    unmount(app);
+    rootDiv.remove();
+  };
 }
 
 async function fetchCSS() {
-  const cssUrl = new URL('./styles.css', import.meta.url)
-  const response = await fetch(cssUrl)
-  const text = await response.text()
+  const cssUrl = new URL("./styles.css", import.meta.url);
+  const response = await fetch(cssUrl);
+  const text = await response.text();
 
-  return response.ok ? text : Promise.reject(text)
+  return response.ok ? text : Promise.reject(text);
 }
