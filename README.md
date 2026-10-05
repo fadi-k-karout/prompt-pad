@@ -8,6 +8,7 @@
 
 - **Floating prompt panel**: Access your saved prompts from any webpage with a single click.
 - **Create, edit, and delete prompts**: Organize your prompts with titles, content, and tags.
+- **Template builder**: Draft a prompt from one of ten built-in patterns — persona, few-shot, chain-of-thought, guardrails and more. Fill the fields, watch the prompt assemble live, then save it.
 - **Copy to clipboard**: Copy any saved prompt with one click.
 - **Search and filter**: Find prompts quickly by searching titles, content, or tags.
 - **Syncs locally**: Your prompts are stored in your browser's local storage.

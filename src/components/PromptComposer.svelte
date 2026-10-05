@@ -6,12 +6,16 @@
 
   interface Props {
     initial?: PromptDraft;
+    /** Shown above the fields when the composer was opened from a template, so
+     *  pre-filled content is explained rather than looking arbitrary. */
+    sourceLabel?: string;
     submitLabel: string;
     onsubmit: (draft: PromptDraft) => Promise<void>;
     oncancel: () => void;
   }
 
-  let { initial, submitLabel, onsubmit, oncancel }: Props = $props();
+  let { initial, sourceLabel, submitLabel, onsubmit, oncancel }: Props =
+    $props();
 
   // Seeding once is deliberate: the list remounts the composer per prompt, so
   // switching prompts builds fresh state instead of clobbering an open draft.
@@ -61,6 +65,13 @@
   use:onEscape={oncancel}
   onsubmit={handleSubmit}
 >
+  >{#if sourceLabel}
+    <p class="text-xs font-medium text-muted-foreground">
+      Drafted from the <span class="text-foreground">{sourceLabel}</span>
+      template. Edit freely — it saves as a normal prompt.
+    </p>
+  {/if}
+
   <div class="flex flex-col gap-1">
     <label for="composer-title" class="text-xs font-semibold text-foreground">
       Title
