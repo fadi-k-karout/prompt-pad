@@ -2,7 +2,15 @@
 
 # prompt-pad
 
-> Shows a Svelte overlay on every web page you visit, with an options page that moves it from right to left.
+> Prompt Pad is a browser extension that lets you save, organize, and quickly reuse your favorite prompts in a floating panel on any webpage.
+
+## Features
+
+- **Floating prompt panel**: Access your saved prompts from any webpage with a single click.
+- **Create, edit, and delete prompts**: Organize your prompts with titles, content, and tags.
+- **Copy to clipboard**: Copy any saved prompt with one click.
+- **Search and filter**: Find prompts quickly by searching titles, content, or tags.
+- **Syncs locally**: Your prompts are stored in your browser's local storage.
 
 ## Commands
 
