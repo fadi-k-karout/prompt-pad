@@ -16,7 +16,7 @@
 
   /* `color-scheme` cannot be set on the shadow host -- its inline
      `all: initial !important` discards it -- so the overlay reads it from
-     `--scheme` in src/content/styles.css. This is the options-page half. */
+     `--scheme` in src/content/styles.css. */
   html {
     font-family: var(--font-sans);
     color-scheme: var(--scheme);

@@ -12,17 +12,13 @@
     }
   },
   "name": "prompt-pad",
-  "description": "Shows a Svelte overlay on every web page you visit, with an options page that moves it from right to left.",
+  "description": "Prompt Pad is a browser extension that lets you save, organize, and quickly reuse your favorite prompts in a floating panel on any webpage.",
   "icons": {
     "16": "images/icon-16.png",
     "32": "images/icon-32.png",
     "48": "images/icon-48.png",
     "64": "images/icon-64.png",
     "128": "images/icon-128.png"
-  },
-  "options_ui": {
-    "page": "options/index.html",
-    "open_in_tab": false
   },
   "permissions": ["storage", "clipboardWrite"],
   "background": {

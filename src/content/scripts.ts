@@ -4,22 +4,6 @@ import "./styles.css";
 
 console.log("[From the page context] Hello from content_scripts!");
 
-type BadgePosition = "left" | "right";
-
-const SETTING_KEY = "badgePosition";
-const DEFAULT_VALUE: BadgePosition = "right";
-
-// Both strings are spelled out so Tailwind sees `left-0` and `right-0` in the
-// source and compiles them into the stylesheet the shadow root loads.
-const POSITION_CLASS: Record<BadgePosition, string> = {
-  left: "content_script left-0",
-  right: "content_script right-0",
-};
-
-function toPosition(value: unknown): BadgePosition {
-  return value === "left" ? "left" : "right";
-}
-
 /**
  * Extension.js content_script entrypoint. The framework calls this on
  * injection and calls the returned function on HMR/teardown to clean up.
@@ -42,7 +26,7 @@ export default function initial() {
 
   // Create container for Svelte app
   const contentDiv = document.createElement("div");
-  contentDiv.className = POSITION_CLASS[DEFAULT_VALUE];
+  contentDiv.className = "content_script";
   shadowRoot.appendChild(contentDiv);
 
   // Mount Svelte app using Svelte 5's mount function
@@ -71,33 +55,7 @@ export default function initial() {
     event.stopPropagation();
   }
 
-  // The key is absent until the first write, so ask storage for the default too.
-  chrome.storage.sync.get({ [SETTING_KEY]: DEFAULT_VALUE }, (settings) => {
-    applyPosition(settings[SETTING_KEY]);
-  });
-
-  // The options page writes the same key, so the overlay follows it live rather
-  // than waiting for the next page load.
-  const onStorageChanged = (
-    changes: Record<string, { newValue?: unknown }>,
-    areaName: string,
-  ) => {
-    if (areaName === "sync" && changes[SETTING_KEY]) {
-      applyPosition(changes[SETTING_KEY].newValue);
-    }
-  };
-
-  chrome.storage.onChanged.addListener(onStorageChanged);
-
-  // The class lands on the element the stylesheet positions, not on the host:
-  // the host is hardened with `all: initial !important`, which a plain style
-  // write cannot beat, and it is not the positioned box either way.
-  function applyPosition(value: unknown) {
-    contentDiv.className = POSITION_CLASS[toPosition(value)];
-  }
-
   return () => {
-    chrome.storage.onChanged.removeListener(onStorageChanged);
     contentDiv.removeEventListener("click", swallow);
     contentDiv.removeEventListener("mousedown", swallow);
     unmount(app);

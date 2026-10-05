@@ -18,9 +18,9 @@
   const isEditing = $derived(editingId !== null);
 
   // The prompt being edited can disappear while its composer is open -- deleted
-  // here, or synced in from the options page or a second tab. The composer then
-  // leaves with it, and clearing the id here is what re-enables Add, instead of
-  // stranding the panel until the next Escape.
+  // here, or synced in from a second tab. The composer then leaves with it, and
+  // clearing the id here is what re-enables Add, instead of stranding the panel
+  // until the next Escape.
   $effect(() => {
     if (editingId && !promptStore.getById(editingId)) editingId = null;
   });
