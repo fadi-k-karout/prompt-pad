@@ -1,0 +1,243 @@
+/* prompt-pad design tokens.
+ *
+ * Structure follows shadcn/ui: a set of semantic custom properties, remapped
+ * onto Tailwind's `--color-*` namespace by `@theme inline` below, so utilities
+ * are written against meaning (`bg-primary`) instead of a raw palette
+ * (`bg-gray-900`). Only tokens that something in this extension actually renders
+ * are declared -- there is no chart, popover or sidebar here, so those parts of
+ * the shadcn set are deliberately absent rather than defined and unused.
+ *
+ * SCOPING
+ * This file is loaded twice: once by the options page, where the tokens land on
+ * `:root`, and once by the content script, which fetches it as text and injects
+ * it into a shadow root, where they land on `:host`. `:root` never matches
+ * inside a shadow tree, so `:host` has to appear in every selector here or the
+ * overlay renders with no colors at all.
+ *
+ * `rootDiv` carries an inline `all: initial !important` (src/content/scripts.ts)
+ * to shield the host from page CSS. That inline declaration beats *any*
+ * stylesheet rule for ordinary properties, so a `:host { color: … }` never
+ * applies -- but it leaves custom properties alone. Tokens therefore reach the
+ * overlay through `:host`, and the ordinary surface properties (`color`,
+ * `color-scheme`, `font-family`) are set on `.content_script` instead. See
+ * src/styles/base.css.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+/* Light.
+ *
+ * This block also carries the `--color-*` remapping, because that is where
+ * Tailwind puts `@theme` output: on `:root, :host` as well. Every semantic
+ * token below therefore needs a matching `--color-*` entry further down.
+ *
+ * `--scheme` is not a shadcn token. It exists because `color-scheme` is an
+ * ordinary property and cannot be inherited from `:host` (see the note above);
+ * routing it through a custom property keeps the one source of truth in this
+ * file instead of repeating the media query in both stylesheets.
+ */
+:root,
+:host {
+  color-scheme: light;
+
+  --scheme: light;
+
+  --radius: 0.625rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.205 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.205 0 0);
+
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.44 0 0);
+
+  /* Sits under both `--background` and `--card`: the composer, the loading
+     skeletons and the empty state all fill with it. */
+  --muted: oklch(0.97 0 0);
+  /* 0.53 rather than shadcn's 0.556: this is the color of the header count,
+     the card timestamps and the composer's hint text, and 0.53 clears 4.5:1 on
+     `--muted` as well as on `--background`, where 0.556 does not. */
+  --muted-foreground: oklch(0.53 0 0);
+
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+
+  --destructive: oklch(0.577 0.245 27.325);
+  /* Not a shadcn token either: the delete confirmation paints text on a solid
+     `--destructive` button, and white on this red is 4.4:1 -- short of AA at the
+     12px it renders at. */
+  --destructive-foreground: oklch(1 0 0);
+
+  --border: oklch(0.922 0 0);
+  /* One step darker than `--border`: a form field needs to read as fillable,
+     where a card edge only needs to separate one surface from the next. */
+  --input: oklch(0.872 0 0);
+
+  /* The single tinted value in the palette. Focus is the only place this
+     product shows colour, so the accent lives on the ring. */
+  --ring: oklch(0.62 0.15 250);
+
+  /* Elevation. These are theme-exposed as `--shadow-badge` / `--shadow-panel`
+     rather than reaching for stock `shadow-lg` / `shadow-2xl`, because a
+     black-alpha shadow on a dark surface is effectively invisible; the dark
+     theme below redefines both at a far higher alpha. */
+  --elevation-badge:
+    0 1px 2px 0 oklch(0 0 0 / 0.1), 0 1px 3px 0 oklch(0 0 0 / 0.08);
+  --elevation-panel:
+    0 12px 20px -6px oklch(0 0 0 / 0.12), 0 6px 10px -6px oklch(0 0 0 / 0.1);
+}
+
+/* Dark, following the OS. `:not(.light)` lets an explicit light choice on the
+ * host or the document element win without needing `!important`.
+ *
+ * `:host(...)` rather than a bare `:host` followed by the compound selector:
+ * Chrome only honours the functional form. `:host:not(.light)` parses but never
+ * matches, which would silently leave the overlay in light mode on every dark OS. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light),
+  :host(:not(.light)) {
+    color-scheme: dark;
+
+    --scheme: dark;
+
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+
+    /* Lifted a step off `--background` so the panel reads as a raised surface
+       rather than a hole. */
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+
+    --primary: oklch(0.92 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+
+    --secondary: oklch(0.3 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+
+    --muted: oklch(0.27 0 0);
+    --muted-foreground: oklch(0.75 0 0);
+
+    --accent: oklch(0.4 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+
+    --destructive: oklch(0.704 0.191 22.216);
+    /* Inverted relative to light mode, and not arbitrarily: this red is light
+       enough that white text on it lands at 3.2:1. */
+    --destructive-foreground: oklch(0.13 0 0);
+
+    --border: oklch(1 0 0 / 12%);
+    --input: oklch(1 0 0 / 18%);
+    --ring: oklch(0.68 0.15 250);
+
+    --elevation-badge: 0 1px 2px 0 oklch(0 0 0 / 0.45);
+    --elevation-panel:
+      0 18px 40px -10px oklch(0 0 0 / 0.6), 0 6px 14px -6px oklch(0 0 0 / 0.45);
+  }
+}
+
+/* Dark, forced on a light OS.
+ *
+ * Repeated verbatim from the block above: CSS has no way to apply one set of
+ * declarations under two different conditions. Kept adjacent to it and in the
+ * same order so the two are easy to keep in step -- `.dark` is applied by
+ * src/options/scripts.ts, and by hand on the shadow host if the overlay ever
+ * needs to ignore the OS.
+ *
+ * `:host(.dark)` outranks the plain `:host` light block, which is what lets the
+ * forced theme land on the same element that `@theme` maps `--color-*` on. The
+ * functional form is required -- see the note on the media query above.
+ * `color-scheme` is the one exception and cannot be set here at all, since the
+ * host's inline `all: initial` discards it; `.content_script` reads `--scheme`
+ * for that instead.
+ */
+.dark,
+:host(.dark) {
+  color-scheme: dark;
+
+  --scheme: dark;
+
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+
+  --primary: oklch(0.92 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+
+  --secondary: oklch(0.3 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  --muted: oklch(0.27 0 0);
+  --muted-foreground: oklch(0.75 0 0);
+
+  --accent: oklch(0.4 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.13 0 0);
+
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.68 0.15 250);
+
+  --elevation-badge: 0 1px 2px 0 oklch(0 0 0 / 0.45);
+  --elevation-panel:
+    0 18px 40px -10px oklch(0 0 0 / 0.6), 0 6px 14px -6px oklch(0 0 0 / 0.45);
+}
+
+@theme {
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* `inline` makes each utility substitute the raw token straight into the
+ * declaration -- `bg-background` compiles to `background-color: var(--background)`
+ * rather than to an indirection through `--color-background`. That matters in
+ * the shadow root: it removes one link in the chain that has to resolve on
+ * `:host`, and it is what lets an opacity modifier such as `bg-destructive/10`
+ * work off a token whose value is itself a `var()`. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --shadow-badge: var(--elevation-badge);
+  --shadow-panel: var(--elevation-panel);
+
+  /* One scale off a single `--radius`, so changing that one line moves every
+     corner in the extension together. The panel sits one step above a card,
+     which sits one step above a button. */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
+}

@@ -51,10 +51,12 @@
 </script>
 
 <li
-  class="rounded-xl border border-gray-200 bg-white p-3 transition-colors hover:border-gray-300"
+  class="rounded-lg border border-border bg-card p-3 transition-colors hover:border-input"
 >
   <div class="flex items-start justify-between gap-2">
-    <h3 class="min-w-0 flex-1 truncate text-sm font-semibold text-gray-900">
+    <h3
+      class="min-w-0 flex-1 truncate text-sm font-semibold text-card-foreground"
+    >
       {prompt.title}
     </h3>
     <div class="flex shrink-0 items-center gap-1">
@@ -64,7 +66,7 @@
           onclick={handleCopy}
           title="Copy prompt"
           aria-label={`Copy ${prompt.title}`}
-          class="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+          class="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
         >
           {#if hasCopied}
             <svg
@@ -109,7 +111,7 @@
         onclick={onedit}
         title="Edit prompt"
         aria-label={`Edit ${prompt.title}`}
-        class="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+        class="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
       >
         <svg
           class="h-4 w-4"
@@ -131,7 +133,7 @@
         onclick={() => (notice = { kind: "confirm-delete" })}
         title="Delete prompt"
         aria-label={`Delete ${prompt.title}`}
-        class="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+        class="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:ring-2 focus-visible:ring-destructive/60 focus-visible:outline-none"
       >
         <svg
           class="h-4 w-4"
@@ -152,7 +154,9 @@
   </div>
 
   {#if prompt.content}
-    <p class="mt-1.5 line-clamp-3 text-sm whitespace-pre-wrap text-gray-600">
+    <p
+      class="mt-1.5 line-clamp-3 text-sm whitespace-pre-wrap text-muted-foreground"
+    >
       {prompt.content}
     </p>
   {/if}
@@ -163,7 +167,7 @@
            duplicate tags can still arrive from hand-edited storage. -->
       {#each prompt.tags as tag}
         <li
-          class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600"
+          class="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
         >
           {tag}
         </li>
@@ -171,7 +175,7 @@
     </ul>
   {/if}
 
-  <p class="mt-2 text-xs text-gray-400">
+  <p class="mt-2 text-xs text-muted-foreground">
     {#if wasEdited}
       Edited {formatRelativeTime(prompt.updatedAt)}
       <span aria-hidden="true">·</span>
@@ -183,21 +187,23 @@
 
   {#if notice?.kind === "confirm-delete"}
     <div
-      class="mt-2 flex items-center justify-between gap-2 rounded-lg bg-red-50 px-2.5 py-2"
+      class="mt-2 flex items-center justify-between gap-2 rounded-md bg-destructive/10 px-2.5 py-2"
     >
-      <span class="text-xs font-medium text-red-700">Delete this prompt?</span>
+      <span class="text-xs font-medium text-destructive"
+        >Delete this prompt?</span
+      >
       <span class="flex items-center gap-1">
         <button
           type="button"
           onclick={ondelete}
-          class="rounded-md bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+          class="rounded-md bg-destructive px-2 py-1 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-destructive/60 focus-visible:outline-none"
         >
           Delete
         </button>
         <button
           type="button"
           onclick={() => (notice = null)}
-          class="rounded-md px-2 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+          class="rounded-md px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
         >
           Cancel
         </button>
@@ -206,7 +212,7 @@
   {:else if notice?.kind === "copy-failed"}
     <p
       role="alert"
-      class="mt-2 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700"
+      class="mt-2 rounded-md bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
     >
       Could not copy. Your browser may be blocking clipboard access on this
       page.
