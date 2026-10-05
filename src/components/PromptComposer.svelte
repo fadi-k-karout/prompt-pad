@@ -52,22 +52,22 @@
   }
 
   const fieldClass =
-    "w-full border border-gray-300 rounded-lg bg-white px-2.5 py-1.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10";
+    "w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
 </script>
 
 <form
-  class="flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3"
+  class="flex flex-col gap-3 rounded-lg border border-border bg-muted p-3"
   aria-busy={isSaving}
   use:onEscape={oncancel}
   onsubmit={handleSubmit}
 >
   <div class="flex flex-col gap-1">
-    <label for="composer-title" class="text-xs font-semibold text-gray-700">
+    <label for="composer-title" class="text-xs font-semibold text-foreground">
       Title
       <!-- Colour alone is not the signal, and a screen reader announcing
            "asterisk" is noise, so the star is decorative and `required` below
            carries the meaning. -->
-      <span class="text-red-600" aria-hidden="true">*</span>
+      <span class="text-destructive" aria-hidden="true">*</span>
     </label>
     <input
       id="composer-title"
@@ -82,9 +82,9 @@
   </div>
 
   <div class="flex flex-col gap-1">
-    <label for="composer-content" class="text-xs font-semibold text-gray-700">
+    <label for="composer-content" class="text-xs font-semibold text-foreground">
       Prompt
-      <span class="text-red-600" aria-hidden="true">*</span>
+      <span class="text-destructive" aria-hidden="true">*</span>
     </label>
     <textarea
       id="composer-content"
@@ -96,8 +96,8 @@
   </div>
 
   <div class="flex flex-col gap-1">
-    <label for="composer-tags" class="text-xs font-semibold text-gray-700">
-      Tags <span class="font-normal text-gray-500"
+    <label for="composer-tags" class="text-xs font-semibold text-foreground">
+      Tags <span class="font-normal text-muted-foreground"
         >(optional, comma separated)</span
       >
     </label>
@@ -111,7 +111,7 @@
   </div>
 
   {#if error}
-    <p role="alert" class="text-xs font-medium text-red-600">{error}</p>
+    <p role="alert" class="text-xs font-medium text-destructive">{error}</p>
   {/if}
 
   <div class="flex items-center justify-end gap-2">
@@ -119,14 +119,14 @@
       type="button"
       onclick={oncancel}
       disabled={isSaving}
-      class="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-200 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+      class="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
     >
       Cancel
     </button>
     <button
       type="submit"
       disabled={!canSubmit}
-      class="rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900"
+      class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
     >
       {isSaving ? "Saving…" : submitLabel}
     </button>

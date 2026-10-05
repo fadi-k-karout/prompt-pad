@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "../styles/theme.css";
+@import "../styles/base.css";
 
 /* Tailwind backs its `--tw-*` variables with `@property` registrations.
    `@property` is document-scoped, and this stylesheet only ever loads into a
@@ -50,11 +52,25 @@
 }
 
 .content_script {
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  /* The overlay's surface properties live on this container rather than on
+     `:host`, because the host carries an inline `all: initial !important`
+     (src/content/scripts.ts) which outranks any stylesheet rule for ordinary
+     properties -- a `:host { color: … }` there never applies. Custom properties
+     are exempt from `all`, which is why the palette can still reach us through
+     `:host` (see theme.css). Every descendant inherits these three from here. */
+  font-family: var(--font-sans);
+  color: var(--foreground);
+  /* Deliberately no background-color. This container shrink-wraps the widget
+     and is a plain rectangle with no radius of its own, so any background here
+     fills the bounding box of the child and pokes out past its rounded corners
+     as four small points. The badge (`rounded-full`) and the panel
+     (`rounded-xl`) paint their own surfaces, so leaving this transparent is
+     also what lets the host page show through around them. */
+  background-color: transparent;
+  /* Keeps the panel's scrollbar and the composer's resize grip matching the
+     theme, since the host cannot carry `color-scheme` either. */
+  color-scheme: var(--scheme);
+
   position: fixed;
   bottom: 0;
   /* Raised to the maximum because host pages stack their own overlays, and a

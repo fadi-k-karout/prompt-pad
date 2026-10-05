@@ -1,0 +1,33 @@
+/* Defaults that sit underneath every component.
+ *
+ * Deliberately thin. The palette lives in theme.css; this file only establishes
+ * what an element looks like before any utility overrides it.
+ */
+
+@layer base {
+  /* Preflight resets `border` to `0 solid`, which resolves to `currentColor`.
+     Without this the first border a component draws picks up its text color. */
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    border-color: var(--color-border);
+  }
+
+  /* `color-scheme` cannot be set on the shadow host -- its inline
+     `all: initial !important` discards it -- so the overlay reads it from
+     `--scheme` in src/content/styles.css. This is the options-page half. */
+  html {
+    font-family: var(--font-sans);
+    color-scheme: var(--scheme);
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}

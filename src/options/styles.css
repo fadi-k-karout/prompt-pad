@@ -1,15 +1,14 @@
 @import "tailwindcss";
-
-html {
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-}
+@import "../styles/theme.css";
+@import "../styles/base.css";
 
 body {
   min-width: 480px;
-  color: #c9c9c9;
-  background-color: #0a0c10;
 }
+
+/* This surface is pinned to the dark theme -- src/options/scripts.ts puts
+   `.dark` on the document element. That is not a preference: the page's markup
+   paints with fixed light-on-dark colors, so letting it follow the OS would put
+   white text on a white background. Tokens drive the surface instead of the
+   hardcoded values that used to live here, so the page matches the overlay's
+   dark theme without the two disagreeing about it. */
