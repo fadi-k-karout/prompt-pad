@@ -13,6 +13,7 @@ Last updated: 2026-10-05
 ## Privacy and data use
 
 - Prompt Pad stores all prompts and data locally in your browser's storage. No data is collected, transmitted, or shared with any third party.
+- The template builder assembles prompt text entirely on the device. It sends nothing anywhere and never contacts a model provider.
 - The manifest declares data_collection_permissions: none for Firefox, which matches this behavior.
 - Privacy policy URL: TODO required by every store once you collect any data (not applicable if no data is collected).
 
@@ -46,4 +47,4 @@ TODO anything the certification team needs to test the extension. Mirrors the Fi
 
 ## Version history
 
-- 1.0.0 (unreleased): initial release of prompt-pad. Save, organize, and reuse prompts in a floating panel on any webpage.
+- 1.0.0 (unreleased): initial release of prompt-pad. Save, organize, and reuse prompts in a floating panel on any webpage, and draft new prompts from built-in templates.
