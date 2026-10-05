@@ -8,11 +8,10 @@
  * the shadcn set are deliberately absent rather than defined and unused.
  *
  * SCOPING
- * This file is loaded twice: once by the options page, where the tokens land on
- * `:root`, and once by the content script, which fetches it as text and injects
- * it into a shadow root, where they land on `:host`. `:root` never matches
- * inside a shadow tree, so `:host` has to appear in every selector here or the
- * overlay renders with no colors at all.
+ * This file is loaded by the content script, which fetches it as text and
+ * injects it into a shadow root, where the tokens land on `:host`. `:root`
+ * never matches inside a shadow tree, so `:host` has to appear in every
+ * selector here or the overlay renders with no colors at all.
  *
  * `rootDiv` carries an inline `all: initial !important` (src/content/scripts.ts)
  * to shield the host from page CSS. That inline declaration beats *any*
@@ -144,9 +143,7 @@
  *
  * Repeated verbatim from the block above: CSS has no way to apply one set of
  * declarations under two different conditions. Kept adjacent to it and in the
- * same order so the two are easy to keep in step -- `.dark` is applied by
- * src/options/scripts.ts, and by hand on the shadow host if the overlay ever
- * needs to ignore the OS.
+ * same order so the two are easy to keep in step -- `.dark` is applied by hand on the shadow host if the overlay ever needs to ignore the OS.
  *
  * `:host(.dark)` outranks the plain `:host` light block, which is what lets the
  * forced theme land on the same element that `@theme` maps `--color-*` on. The

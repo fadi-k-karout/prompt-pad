@@ -85,9 +85,9 @@ class PromptStorage {
         err instanceof Error ? err.message : "Could not read saved prompts.";
     }
 
-    // Another context (the options page, a second tab) writes the same key, so
-    // the widget follows along without needing a reload. Registered after the
-    // read, once only, so that a retry cannot stack duplicate listeners.
+    // Another tab writes the same key, so the widget follows along without needing
+    // a reload. Registered after the read, once only, so that a retry cannot stack
+    // duplicate listeners.
     if (this.watching) return;
     this.watching = true;
     chrome.storage.onChanged.addListener((changes, namespace) => {

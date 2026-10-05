@@ -20,8 +20,7 @@
  *  cannot restyle it into something visible on the host page. */
 function containerFor(anchor?: HTMLElement): Node {
   const root = anchor?.getRootNode();
-  // A shadow root for our widget, the document for anything else (options page,
-  // or a caller that passed no anchor).
+  // A shadow root for our widget, or the document otherwise.
   return root && root instanceof ShadowRoot ? root : document;
 }
 
