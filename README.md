@@ -7,6 +7,7 @@
 ## Features
 
 - **Floating prompt panel**: Access your saved prompts from any webpage with a single click.
+- **Dockable launch pill**: Sits 16px off the bottom-right corner, mirrors to the bottom-left on right-to-left pages, and can be dragged anywhere. The position is remembered across pages, tabs, and browser sessions, and drops to an icon on screens narrower than 480px.
 - **Create, edit, and delete prompts**: Organize your prompts with titles, content, and tags.
 - **Template builder**: Draft a prompt from one of ten built-in patterns — persona, few-shot, chain-of-thought, guardrails and more. Fill the fields, watch the prompt assemble live, then save it.
 - **Copy to clipboard**: Copy any saved prompt with one click.

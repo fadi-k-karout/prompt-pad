@@ -177,7 +177,7 @@
 
 <section
   id="prompt-panel"
-  class="flex max-h-[70vh] w-88 max-w-[92vw] flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground"
+  class="flex w-88 max-w-[min(22rem,92vw)] flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground"
   aria-label="Prompts"
   use:onEscape={handleEscape}
 >
@@ -255,42 +255,27 @@
   </header>
 
   <div class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3">
-    {#if !promptStore.isLoaded}
-      {#if promptStore.loadError}
-        <div
-          class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-destructive/30 bg-destructive/10 px-4 py-8 text-center"
-        >
-          <p role="alert" class="text-sm font-semibold text-destructive">
-            Could not load your prompts
-          </p>
-          <p class="text-xs text-destructive">{promptStore.loadError}</p>
-          <button
-            type="button"
-            onclick={handleRetry}
-            class="mt-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
-          >
-            Try again
-          </button>
-        </div>
-      {:else}
-        <ul class="flex flex-col gap-2">
-          {#each Array(3) as _, index (index)}
-            <li
-              class="h-16 animate-pulse rounded-lg border border-border bg-muted"
-            ></li>
-          {/each}
-        </ul>
-      {/if}
-    {:else}
-      {#if listError}
-        <p
-          role="alert"
-          class="rounded-md bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
-        >
-          {listError}
+    <!-- 1. CRITICAL ERROR: Failed to Load Store -->
+    {#if !promptStore.isLoaded && promptStore.loadError}
+      <div
+        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-destructive/30 bg-destructive/10 px-4 py-8 text-center"
+      >
+        <p role="alert" class="text-sm font-semibold text-destructive">
+          Could not load your prompts
         </p>
-      {/if}
+        <p class="text-xs text-destructive">{promptStore.loadError}</p>
+        <button
+          type="button"
+          onclick={handleRetry}
+          class="mt-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+        >
+          Try again
+        </button>
+      </div>
 
+      <!-- 2. LOADING STATE: Skeleton Screen -->
+    {:else}
+      <!-- 4. ACTIVE ACTIONS: Forms, Composers, and Pickers -->
       {#if formPatternId}
         <PatternForm
           patternId={formPatternId}
@@ -309,6 +294,7 @@
         />
       {/if}
 
+      <!-- 5. EMPTY STATE: No items yet -->
       {#if promptStore.count === 0 && !formPatternId && !pickerOpen}
         <div
           class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border px-4 py-8 text-center"
@@ -328,6 +314,8 @@
             </button>
           {/if}
         </div>
+
+        <!-- 6. CONTENT STATE: Main Prompt List -->
       {:else}
         <ul class="flex flex-col gap-2">
           {#each promptStore.prompts as prompt (prompt.id)}
