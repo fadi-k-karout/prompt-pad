@@ -60,21 +60,129 @@
      `:host` (see theme.css). Every descendant inherits these three from here. */
   font-family: var(--font-sans);
   color: var(--foreground);
-  /* Deliberately no background-color. This container shrink-wraps the widget
-     and is a plain rectangle with no radius of its own, so any background here
-     fills the bounding box of the child and pokes out past its rounded corners
-     as four small points. The badge (`rounded-full`) and the panel
-     (`rounded-xl`) paint their own surfaces, so leaving this transparent is
-     also what lets the host page show through around them. */
+  /* Deliberately no background-color: this box spans the viewport, so any fill
+     here would paint over the host page. The badge and the panel paint their
+     own surfaces. */
   background-color: transparent;
   /* Keeps the panel's scrollbar and the composer's resize grip matching the
      theme, since the host cannot carry `color-scheme` either. */
   color-scheme: var(--scheme);
 
+  /* Spans the whole viewport rather than shrink-wrapping the widget, for two
+     reasons. It gives the pill a coordinate box whose origin it can be
+     positioned against, which is what makes a remembered position possible --
+     and measuring this box is also how a host page that puts `transform`,
+     `filter` or `contain` on `<html>` or `<body>` is accounted for, since such
+     a page reparents the containing block of every fixed descendant and the
+     box's own rect then reports where that containing block actually sits. It
+     also keeps the widget's footprint stable as the pill moves, so the host
+     page never sees a fixed layer appearing and disappearing under it.
+
+     `pointer-events: none` is what keeps a viewport-sized box from swallowing
+     every click on the page; it is inherited, so `.pp-dock` opts back in and
+     takes the pill's footprint with it.
+
+     All four of the declarations below are also set inline in scripts.ts.
+     ContentApp measures this box at mount time, which happens before this
+     stylesheet has been fetched, and the measurement has to describe the
+     viewport rather than the host page's layout or a remembered position lands
+     off-screen. Keep the two in sync. */
   position: fixed;
-  bottom: 0;
+  inset: 0;
   /* Raised to the maximum because host pages stack their own overlays, and a
-     widget pinned at the bottom edge is exactly where those tend to land. */
+     widget pinned at an edge is exactly where those tend to land. */
   z-index: 2147483647;
-  padding-bottom: env(safe-area-inset-bottom);
+
+  --widget-inset: 16px;
+}
+
+/* The pill's wrapper: the positioned box the pill sits in, and the containing
+   block the panel is measured against. It shrink-wraps to the button, because
+   the panel is absolutely positioned and so never contributes to its size --
+   which is also what keeps a drag's movement deltas mapping one-to-one onto
+   the pill's own position. */
+.pp-dock {
+  position: absolute;
+  pointer-events: auto;
+}
+
+/* Docked default.
+   `data-dir` rather than a logical property: `all: initial !important` on the
+   host pins `direction: ltr` across the whole shadow tree, so
+   `inset-inline-end` would resolve to `right` even on an RTL page. Reading the
+   document's direction and choosing the physical side keeps the mirroring, and
+   leaving `direction` alone stops the pill's own flex order -- icon, then
+   label -- from mirroring along with it. */
+.pp-dock[data-placed="docked"][data-dir="end"] {
+  right: calc(var(--widget-inset) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--widget-inset) + env(safe-area-inset-bottom, 0px));
+}
+.pp-dock[data-placed="docked"][data-dir="start"] {
+  left: calc(var(--widget-inset) + env(safe-area-inset-left, 0px));
+  bottom: calc(var(--widget-inset) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Free dock. `left` and `top` arrive as inline styles; `right` and `bottom`
+   have to be released here rather than being absent from the rules above, or
+   an absolutely positioned box with both its horizontal edges pinned stops
+   shrink-wrapping and stretches across the whole viewport. */
+.pp-dock[data-placed="free"] {
+  right: auto;
+  bottom: auto;
+}
+
+/* Nothing but the pill carries drag affordances. The cursor and the suppressed
+   text selection stop here rather than on the wrapper, because the panel is a
+   sibling of the pill inside it and its content has to stay selectable. */
+.pp-dock .pill {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pp-dock .pill:active {
+  cursor: grabbing;
+}
+
+/* The panel hangs off the pill rather than flowing beneath it: with the pill
+   free to sit anywhere, a flow-positioned panel would push the pill's own box
+   downward and drag it along. `--panel-left` and `--panel-max-h` are written
+   from the pill's measured position at the moment the panel opens. */
+#prompt-panel {
+  position: absolute;
+  left: var(--panel-left, 0px);
+  right: auto;
+  /* Above the pill, so it grows the way it did when the widget was pinned to
+     the bottom edge. The flip below only engages when there is not room. */
+  bottom: calc(100% + 12px);
+  max-height: var(--panel-max-h, 70vh);
+}
+.pp-dock[data-open="down"] #prompt-panel {
+  bottom: auto;
+  top: calc(100% + 12px);
+}
+/* Below this the labelled pill would sit over a third of a phone's screen --
+   roughly 164px of a 360px viewport -- so it drops to its icon. 480 rather
+   than a tighter number because every phone browser reports between 360 and
+   440 CSS pixels, which puts all of them on the same side of the line, and
+   because an unlabelled launcher is the established mobile form of this
+   widget. The accessible name does not follow it down: it is an aria-label on
+   the button, so it stays complete whether or not the text is painted. */
+@media (max-width: 480px) {
+  .pill-label,
+  .pill-count {
+    display: none;
+  }
+  .pp-dock .pill {
+    min-height: 44px;
+  }
+}
+
+/* The panel opens and closes without animating, so there is nothing on that
+   path to gate. The one moving thing in the overlay is the loading skeleton's
+   pulse, and Tailwind ships no reduced-motion fallback for it. */
+@media (prefers-reduced-motion: reduce) {
+  .content_script .animate-pulse {
+    animation: none;
+  }
 }

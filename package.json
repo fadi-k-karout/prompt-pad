@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "prompt-pad",
-  "description": "Shows a Svelte overlay on every web page you visit, with an options page that moves it from right to left.",
+  "description": "Shows a Svelte overlay on every web page you visit, with a prompt pill that docks bottom-right and can be dragged anywhere.",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
